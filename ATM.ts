@@ -1,51 +1,58 @@
+#!/usr/bin/env node
+
 import inquirer from "inquirer";
-let input = await inquirer.prompt([
-    {message: "Enter ATM card"},
-    {message: "Enter 4_digit pin",type: "number",name: "pin"},
-]);
-console.log(input);
-if(input.pin !== "0"){
-    console.log("Entered pin is right, card accepted");
-}
-else {
-    console.log("Entered pin is wrong, card rejected!");
-}
-let screen = await inquirer.prompt([
-    {message: "Select an option",type: "list",name:"options",choices: ["Reset pin","Cash Deposit","Cash Withdraw","Balace Inquiry"]},
-]);
-console.log(screen);
-if(screen.options == "Reset pin"){
-    console.log("Enter previous pin");
-    let changePin = await inquirer.prompt([{
-        message: "Enter new pin",type: "number",name: "newPin",
-    },]);
-    changePin.newPin = input.pin;
-    console.log("Pin has been changed succuessfully!");
-}
-else if(screen.options == "Cash Deposit"){
-    let balance = 120000;
-    let cash = await inquirer.prompt([{
-        message: "Enter amount of cash you want to deposit",type: "number",name: "cash_deposit",
-    },]);
-    let Cash_Deposit = balance + cash.cash_deposit;
-    console.log("Cash has been deposit successfully!, your new balance is: ",Cash_Deposit);
-}
-else if(screen.options == "Cash Withdraw"){
-    let balance = 120000;
-    let cash = await inquirer.prompt([{
-        message: "Enter amount of cash you want to withdraw",type: "number",name: "cash_withdraw",
-    },]);
-    if(cash.cash_withdraw > balance){
-        console.log("Not enough balance");
-    } else {
-        let Cash_Withdraw = balance - cash.cash_withdraw;
-        console.log("Cash withdraw successfully!, your current balance is: ",Cash_Withdraw);
+
+async function main() {
+    // Prompt user for ATM card and PIN input
+    let input = await inquirer.prompt([
+        { message: "Enter ATM card", name: "card" },
+        { message: "Enter 4-digit PIN", type: "number", name: "pin" },
+    ]);
+
+    // Check if entered PIN is correct
+    if (input.pin !== 1234) {
+        console.log("Entered PIN is wrong. Card rejected!");
+        return; // Exit the program
     }
+
+    console.log("Entered PIN is correct. Card accepted.");
+
+    // Present menu options to the user
+    let screen = await inquirer.prompt([
+        { message: "Select an option", type: "list", name: "options", choices: ["Reset pin", "Cash Deposit", "Cash Withdraw", "Balance Inquiry"] },
+    ]);
+
+    // Handle selected option
+    let balance = 120000; // Initial balance
+    switch (screen.options) {
+        case "Reset pin":
+            console.log("Enter previous PIN.");
+            let changePin = await inquirer.prompt([{ message: "Enter new PIN", type: "number", name: "newPin" }]);
+            console.log("Pin has been changed successfully!");
+            break;
+        case "Cash Deposit":
+            let cashDeposit = await inquirer.prompt([{ message: "Enter amount of cash you want to deposit", type: "number", name: "amount" }]);
+            balance += cashDeposit.amount;
+            console.log("Cash has been deposited successfully! Your new balance is:", balance);
+            break;
+        case "Cash Withdraw":
+            let cashWithdraw = await inquirer.prompt([{ message: "Enter amount of cash you want to withdraw", type: "number", name: "amount" }]);
+            if (cashWithdraw.amount > balance) {
+                console.log("Not enough balance!");
+            } else {
+                balance -= cashWithdraw.amount;
+                console.log("Cash has been withdrawn successfully! Your current balance is:", balance);
+            }
+            break;
+        case "Balance Inquiry":
+            console.log("Your balance is:", balance);
+            break;
+        default:
+            console.log("Invalid option. Please try again!");
+    }
+
+    console.log("Thank you for using the ATM machine!");
 }
-else if(screen.options == "Balance Inquiry"){
-    let balance = 120000;
-    console.log("Your balance is: ",balance);
-}
-else {
-    console.log("Invalid option try again!");
-}
+
+// Execute the main function
+main();
